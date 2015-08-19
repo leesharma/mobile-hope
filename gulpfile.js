@@ -8,6 +8,7 @@ var rename = require('gulp-rename');
 var mocha = require('gulp-mocha');
 var sh = require('shelljs');
 
+
 var paths = {
   sass: ['./scss/**/*.scss'],
   test: {
@@ -15,11 +16,21 @@ var paths = {
       server:   ['./server/api/**/*.spec.js'],
       e2e:      [],
   },
+  server: ['./server/**'],
 };
 
+
 gulp.task('default', ['sass', 'test']);
+gulp.task('watch', ['watch:sass', 'watch:test']);
+
+
+/**
+ * Tests and Specs
+ */
 
 gulp.task('test', ['test:client', 'test:server', 'test:e2e']);
+
+// individual test tasks
 
 gulp.task('test:client', function (done) {});
 
@@ -29,6 +40,22 @@ gulp.task('test:server', function (done) {
 });
 
 gulp.task('test:e2e', function (done) {});
+
+// watchers
+
+gulp.task('watch:test', ['watch:server']);
+
+gulp.task('watch:server', function () {
+    gulp.watch(
+        paths.test.server.concat(paths.server),
+        ['test:server']
+    );
+});
+
+
+/**
+ * Build assets
+ */
 
 gulp.task('sass', function(done) {
   gulp.src('./scss/ionic.app.scss')
@@ -44,9 +71,16 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
-gulp.task('watch', function() {
+// watchers
+
+gulp.task('watch:sass', function() {
   gulp.watch(paths.sass, ['sass']);
 });
+
+
+/**
+ * Etc.
+ */
 
 gulp.task('install', ['git-check'], function() {
   return bower.commands.install()
