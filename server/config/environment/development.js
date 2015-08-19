@@ -1,9 +1,15 @@
 /**
- * DEVELOPMENT ENV CONFIGURATION
+ * Development Env Configuration
+ * =============================
  */
 
 (function () {
     'use strict';
 
-    module.exports = {};
+    module.exports = {
+        // MongoDB Connection Options
+        mongo: {
+            uri: 'mongodb://localhost/mobile-hope-dev',
+        },
+    };
 }());

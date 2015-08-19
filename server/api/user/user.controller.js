@@ -10,34 +10,69 @@
  */
 
 (function () {
+    var _    = require ('lodash');
+    var User = require('./user.model');
+
+    function handleError(res, err) {
+        return res.status(500).json(err);
+    }
+
+    function handle404(res) {
+        return res.status(404).json({ error: 'Record not found', });
+    }
+
     // GET index: list of users
     exports.index = function (req, res) {
-        users = [
-            { name: 'Lauren Ipsum', },
-        ];
-        return res.status(200).json(users);
+        User.find(function (err, users) {
+            if (err) return handleError(res, err);
+            return res.status(200).json(users);
+        });
     };
 
     // GET show: a single user
     exports.show = function (req, res) {
-        user = { name: 'Lauren Ipsum', };
-        return res.status(200).json(user);
+        User.findById(req.params.id, function (err, user) {
+            if (err)   return handleError(res, err);
+            if (!user) return handle404(res);
+
+            return res.status(200).json(user);
+        });
     };
 
-    // POST create
+    // POST create: create a new user record
     exports.create = function (req, res) {
-        user = { name: 'Lauren Ipsum', };
-        return res.status(201).json(user);
+        User.create(req.body, function (err, user) {
+            if (err) return handleError(res, err);
+            return res.status(201).json(user);
+        });
     };
 
-    // PATCH update
+    // PATCH update: update attributes for a single user
     exports.update = function (req, res) {
-        user = { name: 'Lauren Ipsum', };
-        return res.status(200).json(user);
+        if(req.body._id) delete req.body._id;
+
+        User.findById(req.params.id, function (err, user) {
+            if (err)   return handleError(res, err);
+            if (!user) return handle404(res);
+
+            var updated = _.assign(user, req.body);
+            updated.save(function (err) {
+                if (err) return handleError(res, err);
+                return res.status(200).json(user);
+            });
+        });
     };
 
-    // DELETE destroy
+    // DELETE destroy: delete a single user by id
     exports.destroy = function (req, res) {
-        res.status(204).send('No Content');
+        User.findById(req.params.id, function (err, user) {
+            if(err)   return handleError(res, err);
+            if(!user) return handle404(res);
+
+            user.remove(function(err) {
+                if(err) return handleError(res, err);
+                return res.status(204).send('No Content');
+            });
+        });
     };
 }());

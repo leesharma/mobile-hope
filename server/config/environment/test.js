@@ -1,9 +1,15 @@
 /**
- * TEST ENV CONFIGURATION
+ * Test Env Configuration
+ * ======================
  */
 
 (function () {
     'use strict';
 
-    module.exports = {};
+    module.exports = {
+        // MongoDB connection options
+        mongo: {
+            uri: 'mongodb://localhost/mobile-hope-test',
+        },
+    };
 }());

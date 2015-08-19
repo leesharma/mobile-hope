@@ -4,6 +4,7 @@ var bower = require('bower');
 var concat = require('gulp-concat');
 var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
+var jshint = require('gulp-jshint');
 var rename = require('gulp-rename');
 var mocha = require('gulp-mocha');
 var sh = require('shelljs');
@@ -20,15 +21,15 @@ var paths = {
 };
 
 
-gulp.task('default', ['sass', 'test']);
-gulp.task('watch', ['watch:sass', 'watch:test']);
+gulp.task('default', ['lint', 'sass', 'test', 'watch']);
+gulp.task('watch', ['watch:sass', 'watch:lint', 'watch:test']);
 
 
 /**
  * Tests and Specs
  */
 
-gulp.task('test', ['test:client', 'test:server', 'test:e2e']);
+gulp.task('test', ['test:server']);
 
 // individual test tasks
 
@@ -36,7 +37,12 @@ gulp.task('test:client', function (done) {});
 
 gulp.task('test:server', function (done) {
   return gulp.src(paths.test.server, {read: false})
-    .pipe(mocha({reporter: 'spec'}));
+    .pipe(
+        mocha({
+            reporter: 'list',
+            useColors: true,
+        })
+    );
 });
 
 gulp.task('test:e2e', function (done) {});
@@ -45,10 +51,34 @@ gulp.task('test:e2e', function (done) {});
 
 gulp.task('watch:test', ['watch:server']);
 
+gulp.task('watch:client', function () {});
+
 gulp.task('watch:server', function () {
     gulp.watch(
         paths.test.server.concat(paths.server),
         ['test:server']
+    );
+});
+
+gulp.task('watch:e2e', function () {});
+
+
+/**
+ * Linting
+ */
+
+gulp.task('lint', function () {
+    return gulp.src(['./www/js/**/*.js', './server/*.js', './server/**/*.js'])
+    .pipe(jshint())
+    .pipe(jshint.reporter('jshint-stylish'));
+});
+
+// watchers
+
+gulp.task('watch:lint', function () {
+    gulp.watch(
+        ['./www/js/**/*.js', './server/*.js', './server/**/*.js'],
+        ['lint']
     );
 });
 
