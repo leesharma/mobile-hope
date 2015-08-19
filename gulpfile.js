@@ -5,13 +5,30 @@ var concat = require('gulp-concat');
 var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
+var mocha = require('gulp-mocha');
 var sh = require('shelljs');
 
 var paths = {
-  sass: ['./scss/**/*.scss']
+  sass: ['./scss/**/*.scss'],
+  test: {
+      client:   [],
+      server:   ['./server/api/**/*.spec.js'],
+      e2e:      [],
+  },
 };
 
-gulp.task('default', ['sass']);
+gulp.task('default', ['sass', 'test']);
+
+gulp.task('test', ['test:client', 'test:server', 'test:e2e']);
+
+gulp.task('test:client', function (done) {});
+
+gulp.task('test:server', function (done) {
+  return gulp.src(paths.test.server, {read: false})
+    .pipe(mocha({reporter: 'spec'}));
+});
+
+gulp.task('test:e2e', function (done) {});
 
 gulp.task('sass', function(done) {
   gulp.src('./scss/ionic.app.scss')
